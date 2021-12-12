@@ -1,0 +1,63 @@
+def H_n(state, target):   # no of misplaced tiles by comparing curr state to goal state
+    h = 0
+    for i in state:
+        i1, i2 = state.index(i), target.index(i)
+        y_1, x_1 = i1 % 3, i1 // 3
+        y_2, x_2 = i2 % 3, i2 // 3
+        h += abs(x_1-x_2) + abs(y_1-y_2)
+
+    return h
+def astar(source, target):# Add inputs if more are required
+    g = 0
+    states = [source]
+    visited_states = []
+    while len(states):
+        print("Level :{}".format(g))
+        mv = []
+        for state in states:
+            visited_states.append(state)
+            if state == target:
+                print("Success")
+                return
+            mv += [move for move in possible_moves(state, visited_states) if move not in mv]
+        costs = [g + H_n(move, target) for move in mv]
+        states = [mv[i] for i in range(len(mv)) if costs[i] == min(costs)]
+        g += 1
+    print("Fail")
+
+def possible_moves(state,visited_states):# Add inputs if more are required
+    b = state.index(-1)
+    d = []
+    if b-3 in range(9):
+        d.append('u')
+    if b+3 in range(9):
+        d.append('d')
+    if b not in [0,3,6]:
+        d.append('l')
+    if b not in [2,5,8]:
+        d.append('r')
+    # If direction is possible then add state to move
+    pos_moves = []
+    # for all possible directions find the state if that move is played
+    ### Jump to gen function to generate all possible moves in the given directions
+    for move in d:
+        pos_moves.append(gen(state,move,b))
+
+    return [m for m in pos_moves if m not in visited_states ]
+def gen(state, m, b):
+    temp = state.copy()
+    # if move is to slide empty spot to the left and so on
+    if m == 'u': temp[b], temp[b-3] = temp[b-3], temp[b]
+    if m == 'd': temp[b], temp[b+3] = temp[b+3], temp[b]
+    if m == 'l': temp[b], temp[b-1] = temp[b-1], temp[b]
+    if m == 'r': temp[b], temp[b+1] = temp[b+1], temp[b]
+    # return new state with tested move to later check if "src == target"
+    return temp
+#Test 1
+src = [1,2,3,-1,4,5,6,7,8]
+target = [1,2,3,4,5,-1,6,7,8]
+astar(src, target)
+# Test 3
+src = [1,2,3,7,4,5,6,-1,8]
+target=[1,2,3,6,4,5,-1,7,8]
+astar(src, target)
